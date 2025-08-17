@@ -4,8 +4,10 @@
 # 
 # Each repo entry includes:
 #   - name: the GitHub repo name (required)
-#   - archived: whether the repo should be archived (true/false)
-#   - notice: optional text to prepend to README.md if archived
+#   - status: active | archived | private
+#   - description: short explanation of the repo’s purpose or history
+#   - successor: (optional) the repo that replaces it
+#   - archive_date: (optional) date when it was archived (YYYY-MM-DD)
 
 repos:
   - name: my-old-repo
