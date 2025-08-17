@@ -101,6 +101,7 @@ def process_repo(repo_cfg, dry_run=False):
             console.print(f"  [green]Already private[/green]")
         else:
             run(["gh", "repo", "edit", f"{OWNER}/{repo}", "--visibility", "private"])
+            run(["gh", "repo", "edit", f"{OWNER}/{repo}", "--description", desc])
             update_readme(repo, banner=None)  # remove archive banner if present
 
     elif status == "delete":
@@ -110,7 +111,8 @@ def process_repo(repo_cfg, dry_run=False):
     else:  # active or other statuses
         if info.get("archived", False):
             run(["gh", "repo", "unarchive", f"{OWNER}/{repo}"])
-            run(["gh", "repo", "edit", f"{OWNER}/{repo}", "--visibility", "private"])
+        
+        run(["gh", "repo", "edit", f"{OWNER}/{repo}", "--description", desc])
         update_readme(repo, banner=None)  # remove archive banner if present
 
 def display_plan(manifest):
