@@ -73,21 +73,13 @@ python gardener.py
 ```
 
 This will:
+
 - Archive/unarchive repositories as defined in `repos.yaml`
 - Add archive notices to `README.md` files if needed
-
-### 5. Commit your `repos.yaml`
-
-The `repos.yaml` file should **not** be checked into git. Add it to your `.gitignore`:
-
-```gitignore
-repos.yaml
-```
-
-This keeps your local curation rules private, but sharable via the template.
+- Keep your repo description up to date
 
 ## Roadmap
 
-- Add support for topics, descriptions, and labels
+- Add support for topics, and labels
 - Generate repo-level dashboards
 - Integrate with GitHub Actions for automation
