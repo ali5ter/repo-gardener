@@ -86,22 +86,6 @@ repos.yaml
 
 This keeps your local curation rules private, but sharable via the template.
 
----
-
-## Example `repos.yaml.template`
-
-```yaml
-repositories:
-  - name: example-repo
-    archive: true
-    readme_notice: true
-  - name: another-repo
-    archive: false
-    readme_notice: false
-```
-
----
-
 ## Roadmap
 
 - Add support for topics, descriptions, and labels
