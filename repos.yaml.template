@@ -1,0 +1,23 @@
+# @file repos.yaml.template
+# @brief This file is the single source of truth for repository curation.
+# @note Copy this to repos.yaml and edit as needed. repos.yaml should NOT be checked in.
+# 
+# Each repo entry includes:
+#   - name: the GitHub repo name (required)
+#   - archived: whether the repo should be archived (true/false)
+#   - notice: optional text to prepend to README.md if archived
+
+repos:
+  - name: my-old-repo
+    status: archived
+    description: "Old experiment, archived in favor of new-repo"
+    successor: new-repo
+    archive_date: 2025-08-16
+
+  - name: personal-scripts
+    status: private
+    description: "Utility scripts for personal use"
+
+  - name: prototype-demo
+    status: active
+    description: "Demo project still in development"

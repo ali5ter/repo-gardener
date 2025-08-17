@@ -1,0 +1,6 @@
+.venv/
+__pycache__/
+*.pyc
+*.log
+repos.yaml
+rm_last_README_commit.py
