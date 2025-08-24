@@ -81,7 +81,7 @@ cp repos.yaml.template repos.yaml
 ### 4. Run the gardener
 
 ```bash
-python gardener.py
+./.venv/bin/python gardener.py
 ```
 
 This will:
