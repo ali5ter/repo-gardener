@@ -7,6 +7,7 @@
 - Archive or unarchive repositories based on a configuration file
 - Ensure each archived repo has an **archive notice** in its `README.md`
 - Future extension: add topics, labels, descriptions, or other curation metadata
+- Generate markdown content listing categrized repos you could include in your GitHub Profile README
 
 ## Curation of your repos
 
@@ -17,22 +18,33 @@ When looking at repos, decide if they should be:
 - Archived and made private (not worth public exposure)
 - Deleted (true dead ends with no value)
 
+Consider how you'd categorize your repos:
+
+- showcase: Highlight in your GitHub Profile README
+- utility: Helper scripts/tools, maybe private
+- experiment: One-off explorations, often archived
+- work: Work related or professional projects
+- personal: Things you want to keep, not showcase
+
 Use the repos.yaml to identify these states and add any metadata, e.g.
 
 ```yaml
 repos:
   - name: my-old-repo
     status: archived
+    category: experiment
     description: "Old experiment, archived in favor of new-repo"
     successor: new-repo
     archive_date: 2025-08-16
 
   - name: personal-scripts
     status: private
+    category: personal
     description: "Utility scripts for personal use"
 
   - name: prototype-demo
     status: active
+    category: showcase
     description: "Demo project still in development"
 ```
 
@@ -77,9 +89,4 @@ This will:
 - Archive/unarchive repositories as defined in `repos.yaml`
 - Add archive notices to `README.md` files if needed
 - Keep your repo description up to date
-
-## Roadmap
-
-- Add support for topics, and labels
-- Generate repo-level dashboards
-- Integrate with GitHub Actions for automation
+- Generate PROFILE_README.md which you can use in your GitHub Profile README
