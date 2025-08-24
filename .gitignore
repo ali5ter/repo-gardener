@@ -3,5 +3,4 @@ __pycache__/
 *.pyc
 *.log
 repos.yaml
-rm_last_README_commit.py
 PROFILE_README.md
