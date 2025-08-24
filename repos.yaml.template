@@ -4,22 +4,34 @@
 # 
 # Each repo entry includes:
 #   - name: the GitHub repo name (required)
-#   - status: active | archived | private
+#   - status: active | archived | private | delete
+#   - category: experiment | utility | work | showcase | personal
 #   - description: short explanation of the repo’s purpose or history
 #   - successor: (optional) the repo that replaces it
 #   - archive_date: (optional) date when it was archived (YYYY-MM-DD)
+#
+# Categories provides logical groupings, e.g.
+#  - showcase: Highlight in your GitHub Profile README
+#  - utility: Helper scripts/tools, maybe private
+#  - experiment: One-off explorations, often archived
+#  - work: Work related or professional projects
+#  - personal: Things you want to keep, not showcase
+
 
 repos:
   - name: my-old-repo
     status: archived
+    category: experiment
     description: "Old experiment, archived in favor of new-repo"
     successor: new-repo
     archive_date: 2025-08-16
 
   - name: personal-scripts
     status: private
+    category: utility
     description: "Utility scripts for personal use"
 
   - name: prototype-demo
     status: active
+    category: showcase
     description: "Demo project still in development"

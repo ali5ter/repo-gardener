@@ -88,7 +88,7 @@ def process_repo(repo_cfg, dry_run=False):
 
         banner = f"> **⚠️ Archived {archive_date}. No longer maintained.**"
         if successor:
-            banner += f" Successor: [{successor}](https://github.com/ali5ter/{successor})."
+            banner += f" Successor: [{successor}](https://github.com/{OWNER}/{successor})."
         update_readme(repo, banner)
 
         run(["gh", "repo", "edit", f"{OWNER}/{repo}", "--description", desc])
@@ -125,6 +125,41 @@ def display_plan(manifest):
         table.add_row(repo_cfg["name"], repo_cfg["status"], repo_cfg.get("description", ""))
     console.print(table)
 
+def generate_profile_readme_content(yaml_file="repos.yaml", output="PROFILE_README.md"):
+    with open(yaml_file) as f:
+        data = yaml.safe_load(f)
+
+    repos = data["repos"]
+
+    sections = {
+        "active": "## 🚀 Active Projects",
+        "reference": "## 🛠️ Useful References",
+        "archived": "## 🗄️ Archived Experiments"
+    }
+
+    grouped = {"active": [], "reference": [], "archived": []}
+    for repo in repos:
+        if repo["status"] in ("private", "delete"):
+            continue
+        if repo["status"] == "active":
+            grouped["active"].append(repo)
+        elif repo["status"] == "archived" and repo["category"] in ("work", "experiment"):
+            grouped["archived"].append(repo)
+        else:
+            grouped["reference"].append(repo)
+
+    lines = []
+
+    for key, header in sections.items():
+        if grouped[key]:
+            lines.append("")
+            lines.append(header)
+            for r in grouped[key]:
+                lines.append(f'- [{r["name"]}](https://github.com/{OWNER}/{r["name"]}) — {r["description"]}')
+
+    Path(output).write_text("\n".join(lines))
+    print(f"Generated profile README at {output}")
+
 def main():
     import argparse
     parser = argparse.ArgumentParser(description="Repo Gardener")
@@ -136,6 +171,8 @@ def main():
 
     for repo_cfg in manifest["repos"]:
         process_repo(repo_cfg, dry_run=args.dry_run)
+
+    generate_profile_readme_content()
 
 if __name__ == "__main__":
     main()
