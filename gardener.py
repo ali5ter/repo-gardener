@@ -82,7 +82,6 @@ def process_repo(repo_cfg, dry_run=False):
 
     if status == "archived":
         was_archived = info.get("archived", False)
-
         if was_archived:
             run(["gh", "repo", "unarchive", f"{OWNER}/{repo}", "--yes"])
 
@@ -97,10 +96,14 @@ def process_repo(repo_cfg, dry_run=False):
         run(["gh", "repo", "archive", f"{OWNER}/{repo}", "--yes"])
 
     elif status == "private":
+        was_archived = info.get("archived", False)
+        if was_archived:
+            run(["gh", "repo", "unarchive", f"{OWNER}/{repo}", "--yes"])
+
         if info.get("private", False):
             console.print(f"  [green]Already private[/green]")
         else:
-            run(["gh", "repo", "edit", f"{OWNER}/{repo}", "--visibility", "private"])
+            run(["gh", "repo", "edit", f"{OWNER}/{repo}", "--visibility", "private", "--accept-visibility-change-consequences"])
             run(["gh", "repo", "edit", f"{OWNER}/{repo}", "--description", desc])
             update_readme(repo, banner=None)  # remove archive banner if present
 
