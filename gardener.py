@@ -32,16 +32,55 @@ def get_owner():
 
 OWNER = get_owner()
 
-def update_readme(repo, banner=None):
-    """Insert or update archive banner in README.md."""
+def extract_archive_date(text):
+    """Extract archive date from existing README banner, return None if not found."""
+    match = re.search(r"^> \*\*⚠️ Archived (\d{4}-\d{2}-\d{2})", text, re.MULTILINE)
+    return match.group(1) if match else None
+
+def get_readme_content(repo):
+    """Fetch README content via GitHub API without cloning."""
+    try:
+        import base64
+        result = subprocess.run(
+            ["gh", "api", f"repos/{OWNER}/{repo}/readme", "--jq", ".content"],
+            capture_output=True, text=True
+        )
+        if result.returncode == 0:
+            return base64.b64decode(result.stdout.strip()).decode("utf-8")
+    except Exception:
+        pass
+    return ""
+
+def update_readme(repo, archive_date=None, successor=None):
+    """Insert or update archive banner in README.md.
+
+    Args:
+        repo: Repository name
+        archive_date: Date to use for archiving, or None to unarchive
+        successor: Optional successor repo name
+    """
     tmpdir = Path(run(["mktemp", "-d"]))
     run(["git", "clone", f"git@github.com:{OWNER}/{repo}.git", str(tmpdir)])
     readme = tmpdir / "README.md"
     text = readme.read_text(encoding="utf-8") if readme.exists() else ""
-    
+
     banner_pattern = re.compile(r"^> \*\*⚠️ Archived [^\n]*\*\*.*(?:\n\n)?", re.MULTILINE)
 
-    if banner:  # archiving → add or replace
+    if archive_date is not None:  # archiving → add or replace, preserving historical date
+        # Check if there's an existing banner with a date
+        existing_date = extract_archive_date(text)
+
+        # Use existing date to preserve history, unless explicitly overridden
+        # If archive_date is "auto", it means we should preserve existing or use today
+        if archive_date == "auto" and existing_date:
+            archive_date = existing_date
+        elif archive_date == "auto":
+            archive_date = str(date.today())
+
+        banner = f"> **⚠️ Archived {archive_date}. No longer maintained.**"
+        if successor:
+            banner += f" Successor: [{successor}](https://github.com/{OWNER}/{successor})."
+
         if banner_pattern.search(text):
             new_text = banner_pattern.sub(f"{banner}\n\n", text, count=1)
         else:
@@ -68,14 +107,38 @@ def process_repo(repo_cfg, dry_run=False):
     status = repo_cfg["status"]
     desc = repo_cfg.get("description", "")
     successor = repo_cfg.get("successor")
-    archive_date = repo_cfg.get("archive_date") or str(date.today())
+    # Use "auto" if not explicitly set, to preserve existing dates
+    archive_date = repo_cfg.get("archive_date") or "auto"
 
     console.print(f"\n[bold]Processing {repo}[/bold] (status={status})")
 
     if dry_run:
         console.print(f"  [cyan]Would set description:[/cyan] {desc}")
+
+        # Show archive date information for archived repos
+        if status == "archived":
+            readme_content = get_readme_content(repo)
+            existing_date = extract_archive_date(readme_content)
+
+            # Determine what date will be used
+            if archive_date == "auto" and existing_date:
+                final_date = existing_date
+                console.print(f"  [green]Archive date:[/green] {final_date} (preserved)")
+            elif archive_date == "auto":
+                final_date = str(date.today())
+                console.print(f"  [yellow]Archive date:[/yellow] {final_date} (new)")
+            else:
+                final_date = archive_date
+                if existing_date and existing_date != final_date:
+                    console.print(f"  [yellow]Archive date:[/yellow] {existing_date} → {final_date} (override)")
+                else:
+                    console.print(f"  [cyan]Archive date:[/cyan] {final_date}")
+
+            if successor:
+                console.print(f"  [cyan]Successor:[/cyan] {successor}")
+
         return
-    
+
     info = get_repo_info(repo)
     if not info:
         return  # skip deleted/missing repos
@@ -85,10 +148,7 @@ def process_repo(repo_cfg, dry_run=False):
         if was_archived:
             run(["gh", "repo", "unarchive", f"{OWNER}/{repo}", "--yes"])
 
-        banner = f"> **⚠️ Archived {archive_date}. No longer maintained.**"
-        if successor:
-            banner += f" Successor: [{successor}](https://github.com/{OWNER}/{successor})."
-        update_readme(repo, banner)
+        update_readme(repo, archive_date=archive_date, successor=successor)
 
         run(["gh", "repo", "edit", f"{OWNER}/{repo}", "--description", desc])
 
@@ -105,18 +165,18 @@ def process_repo(repo_cfg, dry_run=False):
         else:
             run(["gh", "repo", "edit", f"{OWNER}/{repo}", "--visibility", "private", "--accept-visibility-change-consequences"])
             run(["gh", "repo", "edit", f"{OWNER}/{repo}", "--description", desc])
-            update_readme(repo, banner=None)  # remove archive banner if present
+            update_readme(repo)  # remove archive banner if present
 
     elif status == "delete":
         console.print(f"[yellow]Skipping delete for {repo} (safety).[/yellow]")
-        update_readme(repo, banner=None)  # remove archive banner if present
+        update_readme(repo)  # remove archive banner if present
 
     else:  # active or other statuses
         if info.get("archived", False):
             run(["gh", "repo", "unarchive", f"{OWNER}/{repo}", "--yes"])
 
         run(["gh", "repo", "edit", f"{OWNER}/{repo}", "--description", desc])
-        update_readme(repo, banner=None)  # remove archive banner if present
+        update_readme(repo)  # remove archive banner if present
 
 def display_plan(manifest):
     table = Table(title="Repo Gardener - Plan")

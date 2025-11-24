@@ -6,9 +6,11 @@
 #   - name: the GitHub repo name (required)
 #   - status: active | archived | private | delete
 #   - category: experiment | utility | work | showcase | personal
-#   - description: short explanation of the repo’s purpose or history
+#   - description: short explanation of the repo's purpose or history
 #   - successor: (optional) the repo that replaces it
 #   - archive_date: (optional) date when it was archived (YYYY-MM-DD)
+#       If omitted, the gardener will preserve the existing date from the README
+#       banner, or use today's date for newly archived repos
 #
 # Categories provides logical groupings, e.g.
 #  - showcase: Highlight in your GitHub Profile README
