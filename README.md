@@ -6,8 +6,10 @@
 
 - Archive or unarchive repositories based on a configuration file
 - Ensure each archived repo has an **archive notice** in its `README.md`
-- Future extension: add topics, labels, descriptions, or other curation metadata
-- Generate markdown content listing categrized repos you could include in your GitHub Profile README
+- **Preserve historical archive dates** - existing dates in archive notices are maintained
+- Update repository descriptions on GitHub
+- Generate markdown content listing categorized repos you could include in your GitHub Profile README
+- **Dry-run mode** to preview changes before applying them
 
 ## Curation of your repos
 
@@ -59,7 +61,19 @@ git clone https://github.com/YOUR_USERNAME/repo-gardener.git
 cd repo-gardener
 ```
 
-### 2. Create a Python virtual environment
+### 2. Install GitHub CLI
+
+This tool requires the [GitHub CLI](https://cli.github.com/) to interact with GitHub:
+
+```bash
+# On macOS with Homebrew
+brew install gh
+
+# Authenticate with GitHub
+gh auth login
+```
+
+### 3. Create a Python virtual environment
 
 ```bash
 python3 -m venv .venv
@@ -67,7 +81,7 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### 3. Copy the configuration template
+### 4. Copy the configuration template
 
 The configuration file `repos.yaml` is your **single source of truth** for all repositories you manage.
 
@@ -78,15 +92,29 @@ cp repos.yaml.template repos.yaml
 - Edit `repos.yaml` to define your repositories and their desired state.
 - Do **not** edit `repos.yaml.template`. It is only a starting point.
 
-### 4. Run the gardener
+### 5. Run the gardener
 
 ```bash
+# Preview changes without making them (recommended first step)
+./.venv/bin/python gardener.py --dry-run
+
+# Apply changes to your repositories
 ./.venv/bin/python gardener.py
 ```
 
 This will:
 
 - Archive/unarchive repositories as defined in `repos.yaml`
-- Add archive notices to `README.md` files if needed
-- Keep your repo description up to date
+- Add or update archive notices in `README.md` files (preserving historical dates)
+- Update repository descriptions on GitHub
 - Generate PROFILE_README.md which you can use in your GitHub Profile README
+
+## Archive Date Behavior
+
+When archiving repositories, the gardener **preserves historical archive dates**:
+
+- If a repo already has an archive notice with a date, that date is kept
+- Only uses today's date when archiving a repo for the first time
+- You can explicitly set `archive_date` in repos.yaml to override
+
+This ensures archive dates remain accurate historical information rather than being refreshed on every run.
