@@ -3,4 +3,5 @@ __pycache__/
 *.pyc
 *.log
 repos.yaml
-PROFILE_README.mdCLAUDE.md
+PROFILE_README.md
+CLAUDE.md
